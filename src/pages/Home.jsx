@@ -1,355 +1,319 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
-import { Link } from 'react-router-dom'
-import '../index.css'
+const APP_URL = 'https://app.wizpay.xyz'
+const SOCIAL_URL = 'https://x.com/wizpay_arc'
 
-/* ── Scroll-reveal hook ── */
-function useScrollReveal() {
-  const ref = useRef(null)
+const valuePills = [
+  'Simple wallet payments',
+  'Clear status from start to finish',
+  'Built for mobile and desktop',
+]
 
-  useEffect(() => {
-    const node = ref.current
-    if (!node) return
+const stats = [
+  { value: '1 app', label: 'for send, swap, and tracking' },
+  { value: 'Few taps', label: 'to finish a payment' },
+  { value: '24/7', label: 'visibility on every transfer' },
+]
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-          }
-        })
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    )
-
-    // Observe all .reveal and .reveal-scale children
-    const targets = node.querySelectorAll('.reveal, .reveal-scale')
-    targets.forEach((el) => observer.observe(el))
-
-    return () => observer.disconnect()
-  }, [])
-
-  return ref
-}
-
-/* ── Feature data ── */
 const features = [
   {
-    icon: '⇄',
-    color: 'rgba(99, 102, 241, 0.12)',
-    borderColor: 'rgba(99, 102, 241, 0.2)',
-    textColor: '#818cf8',
-    title: 'Universal Liquidity',
-    desc: 'Pay in any stablecoin. Recipients choose their payout token. Our StableFX engine routes swaps automatically.',
+    eyebrow: 'Fast',
+    title: 'Send money without the usual back and forth',
+    description: 'Pay one person or a full list from the same clean flow.',
   },
   {
-    icon: '⚡',
-    color: 'rgba(139, 108, 247, 0.12)',
-    borderColor: 'rgba(139, 108, 247, 0.2)',
-    textColor: '#a78bfa',
-    title: 'Batch Processing',
-    desc: 'Send to 50+ recipients in a single transaction with gas-optimized routing and on-chain reference IDs.',
+    eyebrow: 'Flexible',
+    title: 'Switch between balances when you need to',
+    description: 'Move between digital dollar and euro balances without opening another tool.',
   },
   {
-    icon: '🛡',
-    color: 'rgba(52, 211, 153, 0.12)',
-    borderColor: 'rgba(52, 211, 153, 0.2)',
-    textColor: '#34d399',
-    title: 'Enterprise Auditing',
-    desc: 'Every batch emits rich on-chain metadata. Map off-chain invoices to immutable payment proofs.',
+    eyebrow: 'Global',
+    title: 'Keep payments moving across networks',
+    description: 'Use one app experience even when money needs a longer route.',
   },
   {
-    icon: '🔐',
-    color: 'rgba(251, 191, 36, 0.12)',
-    borderColor: 'rgba(251, 191, 36, 0.2)',
-    textColor: '#fbbf24',
-    title: 'Multi-Auth Login',
-    desc: 'Sign in with Google, X, email, or any Web3 wallet via Privy. No seed phrase headaches.',
-  },
-  {
-    icon: '💧',
-    color: 'rgba(34, 211, 238, 0.12)',
-    borderColor: 'rgba(34, 211, 238, 0.2)',
-    textColor: '#22d3ee',
-    title: 'DeFi Liquidity Vault',
-    desc: 'Provide USDC or EURC liquidity and earn cross-swap fees. Manage positions from the built-in vault.',
-  },
-  {
-    icon: '📊',
-    color: 'rgba(244, 114, 182, 0.12)',
-    borderColor: 'rgba(244, 114, 182, 0.2)',
-    textColor: '#f472b6',
-    title: 'Live Telemetry',
-    desc: 'Real-time balance tracking, transaction history with search and pagination, and live FX engine monitoring.',
+    eyebrow: 'Clear',
+    title: 'Track every step with less guesswork',
+    description: 'See what is ready, sent, or still on the way in plain language.',
   },
 ]
 
-/* ── Stats ── */
-const stats = [
-  { value: '$0 Fees', label: 'On Testnet' },
-  { value: '50+', label: 'Recipients/Batch' },
-  { value: '2', label: 'Tokens Supported' },
-  { value: '<3s', label: 'Settlement Time' },
+const steps = [
+  {
+    number: '01',
+    title: 'Open the app',
+    description: 'Start from the wallet you already use. No long setup wall.',
+  },
+  {
+    number: '02',
+    title: 'Add who gets paid',
+    description: 'Choose one contact or paste in a full payment list.',
+  },
+  {
+    number: '03',
+    title: 'Review the total',
+    description: 'Check the amount, route, and status before you confirm.',
+  },
+  {
+    number: '04',
+    title: 'Send and follow it live',
+    description: 'Track progress in one place until the payment is done.',
+  },
 ]
+
+function SectionHeading({ badge, title, description }) {
+  return (
+    <div className="max-w-2xl space-y-4">
+      <span className="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/85">
+        {badge}
+      </span>
+      <div className="space-y-3">
+        <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          {title}
+        </h2>
+        <p className="max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
+          {description}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function FeatureCard({ eyebrow, title, description }) {
+  return (
+    <article className="surface-card rounded-[28px] p-6">
+      <span className="inline-flex rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+        {eyebrow}
+      </span>
+      <div className="mt-5 space-y-3">
+        <h3 className="font-display text-xl font-semibold tracking-tight text-white">
+          {title}
+        </h3>
+        <p className="text-sm leading-7 text-slate-300">
+          {description}
+        </p>
+      </div>
+    </article>
+  )
+}
+
+function StepCard({ number, title, description }) {
+  return (
+    <article className="surface-card rounded-[28px] p-6">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-cyan-300/20 bg-cyan-300/10 text-sm font-semibold text-cyan-100">
+        {number}
+      </div>
+      <div className="mt-5 space-y-3">
+        <h3 className="font-display text-xl font-semibold tracking-tight text-white">
+          {title}
+        </h3>
+        <p className="text-sm leading-7 text-slate-300">
+          {description}
+        </p>
+      </div>
+    </article>
+  )
+}
 
 function Home() {
-  const [scrolled, setScrolled] = useState(false)
-  const pageRef = useScrollReveal()
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   return (
-    <div ref={pageRef}>
-      {/* ── Background Effects ── */}
-      <div className="grid-bg" />
-      <div className="background-glow">
-        <div className="glow-circle glow-purple" />
-        <div className="glow-circle glow-blue" />
-        <div className="glow-circle glow-cyan" />
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="soft-grid absolute inset-x-0 top-0 h-[42rem] opacity-50" />
+        <div className="absolute -left-32 top-24 h-72 w-72 rounded-full bg-cyan-400/12 blur-[120px]" />
+        <div className="absolute right-[-5rem] top-12 h-80 w-80 rounded-full bg-sky-500/12 blur-[140px]" />
+        <div className="absolute bottom-[-8rem] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-300/10 blur-[160px]" />
       </div>
 
-      {/* ══════════ Navbar ══════════ */}
-      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-        <div className="container nav-content">
-          <div className="logo">
-            <div className="logo-icon animate-glow-pulse">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                <polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 0 1-4 4H3" />
-              </svg>
-            </div>
-            <span className="logo-text">WizPay</span>
-          </div>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-            <Link to="/docs" className="btn btn-outline" style={{ padding: '0.55rem 1rem', fontSize: '0.85rem' }}>
-              Docs
-            </Link>
-            <a href="https://app.wizpay.xyz" className="btn btn-primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem' }}>
-              Launch App
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* ══════════ Hero Section ══════════ */}
-      <section style={{ paddingTop: '140px', paddingBottom: '60px', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-        <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1.75rem' }}>
-
-          {/* Status badge */}
-          <div className="fade-in-up badge-pill" style={{
-            background: 'rgba(139, 108, 247, 0.08)',
-            borderColor: 'rgba(139, 108, 247, 0.20)',
-            color: 'var(--primary-bright)',
-          }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-emerald)', boxShadow: '0 0 8px rgba(52,211,153,0.5)' }} />
-            V2 Live on Arc Testnet
-          </div>
-
-          {/* Headline */}
-          <h1 className="fade-in-up delay-100 hero-title">
-            The Web3 Universal{' '}
-            <span className="neon-text">Payroll Solution</span>
-          </h1>
-
-          {/* Sub-headline */}
-          <p className="fade-in-up delay-200 hero-subtitle">
-            Process instant, cross-token stablecoin payments to your global workforce.
-            Automated FX routing, batch settlement, and enterprise-grade on-chain auditing.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="fade-in-up delay-300 hero-buttons">
-            <a href="https://app.wizpay.xyz" className="btn btn-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h6v6" /><path d="M10 14 21 3" /><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              </svg>
-              Start Paying Now
-            </a>
-            <Link to="/docs" className="btn btn-outline">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-              </svg>
-              Read the Docs
-            </Link>
-          </div>
-
-          {/* Dashboard Mockup */}
-          <div className="fade-in-up delay-400 mockup-wrapper" style={{ marginTop: '3rem', width: '100%', maxWidth: '920px' }}>
-            <div className="glass-card" style={{ padding: '8px', borderRadius: '1.25rem' }}>
+      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#050816]/75 backdrop-blur-xl">
+        <div className="section-shell flex items-center justify-between py-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 shadow-[0_0_40px_rgba(34,211,238,0.15)]">
               <img
-                src="/hero-mockup.png"
-                alt="WizPay Dashboard Preview"
-                style={{ width: '100%', height: 'auto', borderRadius: '0.85rem', display: 'block' }}
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                src="/favicon.ico"
+                alt="WizPay"
+                width="22"
+                height="22"
+                className="rounded-md"
               />
             </div>
+            <div>
+              <p className="font-display text-lg font-semibold tracking-tight text-white">WizPay</p>
+              <p className="text-xs text-slate-400">Simple wallet payments</p>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* ══════════ Stats Section ══════════ */}
-      <section style={{ padding: '3rem 0 4rem' }}>
-        <div className="container">
-          <div className="stats-row stagger-reveal">
-            {stats.map((stat, i) => (
-              <div
-                key={stat.label}
-                className="reveal glass-card stat-card"
+          <a
+            href={APP_URL}
+            className="inline-flex items-center justify-center rounded-full border border-cyan-300/20 bg-cyan-300/12 px-4 py-2 text-sm font-semibold text-cyan-50 transition hover:-translate-y-0.5 hover:bg-cyan-300/18"
+          >
+            Open App
+          </a>
+        </div>
+      </header>
+
+      <main>
+        <section className="section-shell grid gap-12 pb-18 pt-12 sm:pb-22 sm:pt-16 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:items-center lg:pt-24">
+          <div className="animate-rise space-y-8">
+            <span className="inline-flex items-center rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-100/85">
+              Now simpler for everyday payments
+            </span>
+
+            <div className="space-y-5">
+              <h1 className="font-display max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl lg:leading-[1.02]">
+                Send money from your wallet without the usual mess.
+              </h1>
+              <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+                WizPay turns a complex payment flow into one clear app for sending, switching balances, and following every transfer.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <a
+                href={APP_URL}
+                className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-slate-950 shadow-[0_20px_60px_rgba(255,255,255,0.12)] transition hover:-translate-y-0.5 hover:bg-slate-100"
               >
-                <div className="stat-value text-gradient">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+                Get Started
+              </a>
+              <a
+                href="#how-it-works"
+                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/8"
+              >
+                See How It Works
+              </a>
+            </div>
 
-      {/* ══════════ Features Section ══════════ */}
-      <section style={{ padding: '4rem 0 5rem' }}>
-        <div className="container">
-          <div className="section-heading reveal">
-            <h2>
-              Built for{' '}
-              <span className="text-gradient">Modern Teams</span>
-            </h2>
-            <p>
-              Everything you need to run a Web3-native payroll — from multi-auth login to on-chain audit trails.
-            </p>
-          </div>
-
-          <div className="features-grid stagger-reveal">
-            {features.map((feat) => (
-              <div key={feat.title} className="reveal glass-card feature-card">
+            <div className="grid gap-3 sm:grid-cols-3">
+              {valuePills.map((item) => (
                 <div
-                  className="icon-box"
-                  style={{
-                    background: feat.color,
-                    border: `1px solid ${feat.borderColor}`,
-                    color: feat.textColor,
-                    boxShadow: `0 0 20px ${feat.color}`,
-                  }}
+                  key={item}
+                  className="rounded-2xl border border-white/8 bg-white/5 px-4 py-4 text-sm leading-6 text-slate-200"
                 >
-                  {feat.icon}
+                  {item}
                 </div>
-                <h3>{feat.title}</h3>
-                <p>{feat.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ How It Works ══════════ */}
-      <section style={{ padding: '4rem 0 5rem' }}>
-        <div className="container">
-          <div className="section-heading reveal">
-            <h2>
-              How <span className="text-gradient">WizPay</span> Works
-            </h2>
-            <p>Three steps to global, cross-token payroll on the blockchain.</p>
+              ))}
+            </div>
           </div>
 
-          <div className="features-grid stagger-reveal" style={{ maxWidth: '900px', margin: '0 auto' }}>
-            {[
-              {
-                step: '01',
-                title: 'Connect & Compose',
-                desc: 'Sign in via Google, X, email, or wallet. Add recipients manually or upload a CSV batch.',
-                color: 'var(--primary)',
-              },
-              {
-                step: '02',
-                title: 'Approve & Simulate',
-                desc: 'WizPay simulates the batch on-chain, calculates fees, and requests exact token approval.',
-                color: 'var(--accent-cyan)',
-              },
-              {
-                step: '03',
-                title: 'Submit & Settle',
-                desc: 'One click sends the batch. Each recipient receives their chosen token — USDC or EURC — instantly.',
-                color: 'var(--accent-emerald)',
-              },
-            ].map((item) => (
-              <div key={item.step} className="reveal glass-card feature-card" style={{ position: 'relative' }}>
-                <div style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: item.color,
-                  opacity: 0.7,
-                  letterSpacing: '0.1em',
-                }}>
-                  STEP {item.step}
+          <div className="animate-rise delay-1 relative">
+            <div className="surface-card rounded-[32px] p-4 sm:p-5">
+              <div className="mb-4 flex items-center justify-between rounded-[24px] border border-white/8 bg-white/6 px-4 py-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                    Payment view
+                  </p>
+                  <p className="mt-2 font-display text-2xl font-semibold text-white sm:text-3xl">
+                    Clear, fast, premium
+                  </p>
                 </div>
-                <h3>{item.title}</h3>
-                <p>{item.desc}</p>
-                {/* Decorative number */}
-                <div style={{
-                  position: 'absolute',
-                  top: '1rem',
-                  right: '1.25rem',
-                  fontFamily: 'var(--font-heading)',
-                  fontSize: '3.5rem',
-                  fontWeight: 800,
-                  color: item.color,
-                  opacity: 0.06,
-                  lineHeight: 1,
-                  pointerEvents: 'none',
-                }}>
-                  {item.step}
+                <div className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                  Ready
                 </div>
               </div>
+
+              <div className="overflow-hidden rounded-[28px] border border-white/8 bg-[#0b1120] p-2 shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+                <img
+                  src="/hero-mockup.png"
+                  alt="WizPay app preview"
+                  width="1400"
+                  height="980"
+                  loading="eager"
+                  decoding="async"
+                  className="h-auto w-full rounded-[20px] object-cover"
+                />
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                {stats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="rounded-[24px] border border-white/8 bg-white/6 px-4 py-4"
+                  >
+                    <p className="font-display text-2xl font-semibold text-white">
+                      {stat.value}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-slate-400">
+                      {stat.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section-shell pb-18 sm:pb-22">
+          <SectionHeading
+            badge="Benefits"
+            title="Everything on the page now talks like a product, not a manual."
+            description="The landing page is focused on what people can do right away: send money faster, stay in control, and understand what is happening at a glance."
+          />
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {features.map((feature) => (
+              <FeatureCard
+                key={feature.title}
+                eyebrow={feature.eyebrow}
+                title={feature.title}
+                description={feature.description}
+              />
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ══════════ CTA Section ══════════ */}
-      <section className="cta-section">
-        <div className="container reveal-scale" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-          <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)' }}>
-            Ready to <span className="neon-text">modernize payroll?</span>
-          </h2>
-          <p style={{ color: 'var(--text-muted)', maxWidth: '480px', fontSize: '1.05rem', textAlign: 'center' }}>
-            Join teams already using WizPay to process cross-token salary payments on Arc Testnet.
-          </p>
-          <div className="hero-buttons" style={{ marginTop: '0.5rem' }}>
-            <a href="https://app.wizpay.xyz" className="btn btn-primary">
-              Launch WizPay App
-            </a>
-            <a href="https://x.com/wizpay_arc" target="_blank" rel="noopener noreferrer" className="btn btn-outline">
-              Follow on X
-            </a>
+        <section id="how-it-works" className="section-shell pb-18 sm:pb-22">
+          <div className="surface-card rounded-[32px] p-6 sm:p-8 lg:p-10">
+            <SectionHeading
+              badge="How It Works"
+              title="A simple flow that feels familiar from the first tap."
+              description="No dense explanation block. Just four steps people can scan quickly on mobile or desktop."
+            />
+
+            <div className="mt-8 grid gap-4 lg:grid-cols-4">
+              {steps.map((step) => (
+                <StepCard
+                  key={step.number}
+                  number={step.number}
+                  title={step.title}
+                  description={step.description}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ══════════ Footer ══════════ */}
-      <footer className="site-footer">
-        <div className="container footer-content">
-          <div className="logo" style={{ fontSize: '1.15rem' }}>
-            <img src="/favicon.ico" alt="WizPay" style={{ width: '22px', height: '22px', borderRadius: '6px' }} />
-            <span className="logo-text" style={{ fontSize: '1.1rem' }}>WizPay</span>
+        <section className="section-shell pb-24">
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[linear-gradient(135deg,rgba(18,191,199,0.18),rgba(6,8,22,0.92)_45%,rgba(245,158,11,0.14))] px-6 py-8 sm:px-8 sm:py-10 lg:flex lg:items-center lg:justify-between lg:px-10">
+            <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-white/12 blur-[120px]" />
+            <div className="relative max-w-2xl space-y-4">
+              <span className="inline-flex items-center rounded-full border border-white/12 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/80">
+                Try WizPay
+              </span>
+              <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Open the app and send your first payment in a few taps.
+              </h2>
+              <p className="text-sm leading-7 text-slate-100/78 sm:text-base">
+                The landing page is now focused on users only: no docs links, no technical wall, and no extra steps before the main action.
+              </p>
+            </div>
+
+            <div className="relative mt-6 flex flex-col gap-3 sm:flex-row lg:mt-0">
+              <a
+                href={APP_URL}
+                className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 hover:bg-slate-100"
+              >
+                Try Now
+              </a>
+              <a
+                href={SOCIAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/6 px-6 py-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10"
+              >
+                Follow Updates
+              </a>
+            </div>
           </div>
-
-          <div className="footer-links">
-            <Link to="/docs" className="footer-link">Docs</Link>
-            <a href="https://x.com/wizpay_arc" target="_blank" rel="noopener noreferrer" className="footer-link">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-              @wizpay_arc
-            </a>
-          </div>
-
-          <p style={{ color: 'var(--text-dim)', fontSize: '0.8rem', margin: 0 }}>
-            © 2026 WizPay. All rights reserved.
-          </p>
-        </div>
-      </footer>
+        </section>
+      </main>
     </div>
   )
 }
