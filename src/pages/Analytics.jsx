@@ -12,7 +12,6 @@ const LINKS = {
 }
 
 const CONTRACT_ADDRESS = '0x87ACE45582f45cC81AC1E627E875AE84cbd75946'
-const SWAP_EXECUTOR_ADDRESS = '0x17685466759f9Cde06f0DCbB5464164ABe541eFA'
 
 const LIVE_ANALYTICS_URL = '/analytics-live.json'
 
@@ -24,7 +23,7 @@ function formatNumber(value) {
 }
 
 function formatLiveUpdatedAt(value) {
-  if (!value) return 'Pending live refresh'
+  if (!value) return 'Pending seed load'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return String(value)
   return date.toLocaleString(undefined, {
@@ -37,39 +36,33 @@ function formatLiveUpdatedAt(value) {
 }
 
 function buildArcscanMetrics(liveAnalytics) {
-  const payroll = liveAnalytics?.contracts?.payrollRouter
-  const swap = liveAnalytics?.contracts?.swapExecutor
-  const totalTransactions = Number(payroll?.transactions || 0) + Number(swap?.transactions || 0)
-  const totalTransfers = Number(payroll?.transfers || 0) + Number(swap?.transfers || 0)
+  const payroll = liveAnalytics?.contracts?.payrollRouter || liveAnalytics
+  const totals = liveAnalytics?.volume?.totals
 
-  if (!payroll && !swap) return ARCSCAN_METRICS
+  if (!payroll?.transactions && !payroll?.transfers && !totals) return ARCSCAN_METRICS
 
   return [
     {
-      label: 'Total Transactions',
-      value: formatNumber(totalTransactions),
-      detail: 'Payroll Router + SwapExecutor public Arcscan transaction count',
-      href: LINKS.arcscan,
-    },
-    {
-      label: 'Total Token Transfers',
-      value: formatNumber(totalTransfers),
-      detail: 'Combined public token transfer count across tracked WizPay contracts',
-      href: LINKS.arcscan,
-    },
-    {
-      label: 'Payroll Router TX',
+      label: 'Contract Transactions',
       value: formatNumber(payroll?.transactions),
-      detail: 'Primary WizPay Payroll Router live Arcscan count',
-      href: payroll?.arcscanUrl || LINKS.arcscan,
+      detail: 'Verified WizPay Payroll Router Arcscan transaction count',
+      href: payroll?.arcscanUrl || liveAnalytics?.arcscanUrl || LINKS.arcscan,
     },
     {
-      label: 'SwapExecutor TX',
-      value: formatNumber(swap?.transactions),
-      detail: 'WizPaySwapExecutor live Arcscan count',
-      href:
-        swap?.arcscanUrl ||
-        `https://testnet.arcscan.app/address/${SWAP_EXECUTOR_ADDRESS}`,
+      label: 'Token Transfers',
+      value: formatNumber(payroll?.transfers),
+      detail: 'Verified Arcscan token transfer count for the Payroll Router',
+      href: payroll?.arcscanUrl || liveAnalytics?.arcscanUrl || LINKS.arcscan,
+    },
+    {
+      label: 'Settled Stablecoin Volume',
+      value: totals?.settledVolumeDisplay || ARCSCAN_METRICS[2].value,
+      detail: 'USDC/EURC outflow settled from Arcscan CSV token transfers',
+    },
+    {
+      label: 'Gross Token Movement',
+      value: totals?.grossMovementDisplay || ARCSCAN_METRICS[3].value,
+      detail: 'Combined USDC/EURC inbound and outbound token movement',
     },
   ]
 }
@@ -77,54 +70,54 @@ function buildArcscanMetrics(liveAnalytics) {
 
 const VERIFIED_USAGE_METRICS = [
   {
-    label: 'Verified Stablecoin Payment Volume',
-    value: '$475.5K+',
-    detail: 'Measured from PaymentRouted contract events',
+    label: 'Settled Stablecoin Volume',
+    value: '373.5M+',
+    detail: 'USDC/EURC outflow settled from Arcscan CSV token transfers',
   },
   {
-    label: 'Active Unique Participants',
-    value: '3,396',
-    detail: 'Deduplicated sender + recipient addresses',
+    label: 'Gross Token Movement',
+    value: '747.1M+',
+    detail: 'Combined inbound and outbound USDC/EURC token movement',
   },
   {
-    label: 'Payment Events',
-    value: '17,455',
-    detail: 'PaymentRouted contract events',
+    label: 'USDC Flow',
+    value: '187.1M In / 187.1M Out',
+    detail: 'Normalized USDC display amounts from Arcscan export',
   },
   {
-    label: 'Routed Batch Recipients',
-    value: '15,956',
-    detail: 'Reported from BatchPaymentRouted recipientCount',
+    label: 'EURC Flow',
+    value: '186.5M In / 186.4M Out',
+    detail: 'Normalized EURC display amounts from Arcscan export',
   },
   {
-    label: 'Batch Executions',
-    value: '5,216',
-    detail: 'BatchPaymentRouted contract events',
+    label: 'Net Stablecoin Position',
+    value: '100K',
+    detail: 'EURC net balance delta in normalized token display amounts',
   },
 ]
 
 const ARCSCAN_METRICS = [
   {
-    label: 'Explorer Transactions',
-    value: '18,681',
-    detail: 'Public transaction count from Arcscan',
+    label: 'Contract Transactions',
+    value: '20,996',
+    detail: 'Verified WizPay Payroll Router Arcscan transaction count',
     href: LINKS.arcscan,
   },
   {
     label: 'Token Transfers',
-    value: '153,071',
-    detail: 'Public token transfer count from Arcscan',
+    value: '336,994',
+    detail: 'Verified Arcscan token transfer count for the Payroll Router',
     href: LINKS.arcscan,
   },
   {
-    label: 'Contract Status',
-    value: 'Verified',
-    detail: 'Primary WizPay Payroll Router contract',
+    label: 'Settled Stablecoin Volume',
+    value: '373.5M+',
+    detail: 'USDC/EURC outflow settled from Arcscan CSV token transfers',
   },
   {
-    label: 'Network',
-    value: 'Arc Testnet',
-    detail: 'Public Arc Testnet deployment',
+    label: 'Gross Token Movement',
+    value: '747.1M+',
+    detail: 'Combined USDC/EURC inbound and outbound token movement',
   },
 ]
 
@@ -429,11 +422,9 @@ function Analytics() {
     }
 
     loadLiveAnalytics()
-    const interval = window.setInterval(loadLiveAnalytics, 12 * 60 * 60 * 1000)
 
     return () => {
       cancelled = true
-      window.clearInterval(interval)
     }
   }, [])
 
@@ -504,11 +495,11 @@ function Analytics() {
             <div className="mt-8 flex flex-col gap-3 text-sm text-slate-400 sm:flex-row sm:gap-8">
               <span className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
-                Live on-chain activity feed
+                Verified on-chain activity snapshot
               </span>
               <span className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.7)]" />
-                Auto-refreshing Arcscan/RPC data
+                Verified Arcscan CSV seed data
               </span>
             </div>
           </div>
@@ -569,9 +560,9 @@ function Analytics() {
                 Verified WizPay contract activity
               </h2>
               <p className="mt-4 max-w-4xl text-sm leading-7 text-slate-300 sm:text-base">
-                WizPay has processed nearly $0.5M in verified USDC/EURC stablecoin payment volume
-                across 17,455 on-chain payment events, with 3,396 active unique participants and
-                15,956 routed batch recipients over the latest 5,000,000 Arc Testnet blocks.
+                WizPay has settled 373.5M+ in USDC/EURC stablecoin outflow and recorded
+                747.1M+ in gross token movement across the verified Payroll Router contract
+                from deployment through the Arcscan export timestamp.
               </p>
             </div>
 
@@ -601,9 +592,8 @@ function Analytics() {
             </div>
 
             <p className="relative mt-6 border-t border-white/8 pt-5 text-xs leading-6 text-slate-500 sm:text-sm">
-              Metrics are derived from verified WizPay contract events over the latest 5,000,000
-              Arc Testnet blocks. USDC and EURC are treated as approximate USD-denominated
-              stablecoin volume.
+              Metrics are derived from the verified Arcscan token transfer CSV export using
+              normalized USDC and EURC display amounts with 6 token decimals.
             </p>
           </div>
         </section>
@@ -611,12 +601,12 @@ function Analytics() {
         <section className="section-shell pb-20 sm:pb-24">
           <SectionHeader
             title="Arcscan Snapshot"
-            description="Live public activity indicators for WizPay Payroll Router and WizPaySwapExecutor on Arc Testnet."
+            description="Verified public activity indicators for the WizPay Payroll Router on Arc Testnet."
           />
 
           <div className="mt-5 flex flex-col gap-2 rounded-2xl border border-cyan-300/10 bg-cyan-300/[0.035] px-4 py-3 text-sm text-slate-300 sm:flex-row sm:items-center sm:justify-between">
             <span>
-              Live source refreshes twice daily from public Arc RPC analytics JSON.
+              Static verified seed data is served from the public analytics JSON.
             </span>
             <span className="font-mono text-xs text-cyan-200">
               Last updated: {liveUpdatedAt}
@@ -847,7 +837,7 @@ function Analytics() {
             </div>
           </div>
           <p className="mt-8 border-t border-white/8 pt-6 text-xs text-slate-600">
-            Live public activity feed for WizPay on Arc Testnet.
+            Verified public activity snapshot for WizPay on Arc Testnet.
           </p>
         </div>
       </footer>

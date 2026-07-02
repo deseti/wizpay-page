@@ -1,34 +1,58 @@
 {
-  "updatedAt": "2026-06-24T12:02:33.339992+00:00",
-  "source": "arc-rpc",
+  "updatedAt": "2026-07-03T00:00:00+07:00",
+  "source": "verified-static-seed",
   "network": "Arc Testnet",
+  "contractName": "WizPay Payroll Router",
+  "contractAddress": "0x87ACE45582f45cC81AC1E627E875AE84cbd75946",
+  "arcscanUrl": "https://testnet.arcscan.app/address/0x87ACE45582f45cC81AC1E627E875AE84cbd75946",
+  "transactions": 20996,
+  "transfers": 336994,
+  "gasUsed": 8356116679,
+  "balance": {
+    "amount": 0.384534,
+    "symbol": "USDC",
+    "display": "0.384534 USDC",
+    "lastBalanceUpdateBlock": 49832717
+  },
+  "volume": {
+    "source": "Arcscan token transfer CSV export",
+    "coverage": "from contract deployment to export timestamp",
+    "amountFormat": "normalized token display amounts from Arcscan export",
+    "tokenDecimals": 6,
+    "tokens": {
+      "USDC": {
+        "in": 187100000,
+        "out": 187100000,
+        "gross": 374200000,
+        "net": 0
+      },
+      "EURC": {
+        "in": 186500000,
+        "out": 186400000,
+        "gross": 372900000,
+        "net": 100000
+      }
+    },
+    "totals": {
+      "totalIn": 373600000,
+      "totalOut": 373500000,
+      "settledVolume": 373500000,
+      "settledVolumeDisplay": "373.5M+",
+      "grossMovement": 747100000,
+      "grossMovementDisplay": "747.1M+",
+      "net": 100000
+    }
+  },
   "contracts": {
     "payrollRouter": {
       "name": "WizPay Payroll Router",
       "address": "0x87ACE45582f45cC81AC1E627E875AE84cbd75946",
       "arcscanUrl": "https://testnet.arcscan.app/address/0x87ACE45582f45cC81AC1E627E875AE84cbd75946",
-      "transactions": 20011,
-      "transfers": 236288,
-      "paymentEvents": 0,
-      "batchEvents": 0
-    },
-    "swapExecutor": {
-      "name": "WizPaySwapExecutor",
-      "address": "0x17685466759f9Cde06f0DCbB5464164ABe541eFA",
-      "arcscanUrl": "https://testnet.arcscan.app/address/0x17685466759f9Cde06f0DCbB5464164ABe541eFA",
-      "transactions": 1528,
-      "transfers": 4588
-    }
-  },
-  "lastIndexedBlock": 48480358,
-  "latestBlock": 48480358,
-  "lastDelta": {
-    "fromBlock": 48480271,
-    "toBlock": 48480358,
-    "payrollRouter": {
-      "uniqueTransactions": 0,
-      "paymentEvents": 0,
-      "batchEvents": 0
+      "transactions": 20996,
+      "transfers": 336994,
+      "gasUsed": 8356116679,
+      "balance": "0.384534 USDC",
+      "lastBalanceUpdateBlock": 49832717
     }
   }
 }
